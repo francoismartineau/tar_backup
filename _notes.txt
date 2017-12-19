@@ -1,0 +1,32 @@
+Ces scripts permettent de créer des backups du système.
+
+
+    --myBackup---------------------------------------------------------------
+        Rouler ce script sans arguments en tant qu'administrateur pour
+        faire un backup du disque C sur le disque Z.
+        Cette tâche permet de rouler myBackup.py avec les droits de l'administrateur:
+            "C:\Windows\System32\schtasks.exe" "/run" "/tn" "my_tasks\myBackup"
+        
+
+    --myRecovery-------------------------------------------------------------
+        Rouler ce script sans arguments pour récupérer le backup le plus
+        récent du disque Z vers un dossier qui sera demandé à l'utilisateur.
+
+        Pour faire un recover vers le disque primaire, je crois qu'il est
+        nécessaire de connecter le disque primaire en question à la machine
+        utilisé pour récupérer les données, vider le disque et le remplir avec
+        notre recovery. 
+        J'ai aussi cru comprendre qu'il était possible de se faire un bootable
+        drive qui copierait son contenu sur le disque primaire. Ça reste à voir.
+
+    --Fichiers utilitaires---------------------------------------------------
+            backup.py
+            recover.py
+            util.py
+
+
+    --Requirements----------------------------------------------------------
+            Administrative Rights for the OS
+            Python3
+            Tar    
+
