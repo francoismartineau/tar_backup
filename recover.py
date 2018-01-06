@@ -1,17 +1,9 @@
-from util import path_remove_drive, change_drive, switch_path_slashes
-import subprocess, os, sys, optparse
+from util import change_cwd_drive, make_destination_folder, remove_drive_letter
+import subprocess, os, sys
 
-"""
-To recover an archive file, run this scripts with arguments as follows:
-    -archive file path
-    -destination folder. For example an external drive.
-To run this script you need Python3 and Tar for windows.
+ARCHIVE_FOLDER = "Z:\\"
+DESTINATION_FOLDER = "C:\\Users\\ffran\\Desktop\\recover"
 
-Options
-    -a path to archive file
-    -d path to recovery folder
-    -l specify alone if you want to recover the latest version of the specified archive file
-"""
 
 def get_archive_file_number(archive):
     num = ""
@@ -38,40 +30,42 @@ def create_dest_folder(dest):
     if not os.path.isdir(dest):
         os.makedirs(dest)
 
-def get_most_recent_archive(archive):
-    folder = os.path.dirname(archive)
+def get_most_recent_archive(archive_folder):
     biggest_num = -1
-    if os.path.isdir(folder):
-        for f in os.listdir(folder):
-            num = get_archive_file_number(f)
-            if num > biggest_num:
-                biggest_num = num
-                archive = f
+    for f in os.listdir(archive_folder):
+        num = get_archive_file_number(f)
+        if num > biggest_num:
+            biggest_num = num
+            archive = f
     return archive
 
-def get_arguments():
-    parser = optparse.OptionParser()
-    parser.add_option("-a", "--archive", action="store", dest="archive", help="Path to the targeted archive file.")
-    parser.add_option("-d", "--dest", action="store", dest="dest", help="Path to the folder where to store recovered files.")
-    parser.add_option("-l", "--latest", action="store_true", dest="recover_latest", default=False, help="Specify if you want to recover the latest version of the specified target file.")
-    opts = parser.parse_args(sys.argv[1:])[0]
-    return opts.archive, opts.dest, opts.recover_latest
-
-
-if __name__ == "__main__":
-    archive, dest, recover_latest = get_arguments()
-    if recover_latest:
-        archive = get_most_recent_archive(archive)
-    if os.path.isfile(archive) and os.path.isdir(os.path.dirname(dest)):
-        change_drive(archive)
-        archive = path_remove_drive(archive)
-        dest = switch_path_slashes(dest)
-        create_dest_folder(dest)
-        save = os.path.join(os.path.dirname(archive), "save")
-        for i in range(get_archive_file_number(archive) + 1):
-            archive = get_archive_by_number(archive, i)
-            subprocess.call(['tar', '-xvpz', '--listed-incremental=' + save, '-f', archive, '-C', dest])
+def split_destination_for_command(destination):
+    if destination[0].isalpha() and destination[1] == ':' and destination[2] == '\\':
+        destination_drive = "/" + destination[0]
+        destination = './' + destination[3:].replace('\\', '/')
+        return destination_drive, destination
     else:
-        print("Arguments are: archive_path dest_folder")
+        print("Destination path must respect the format C:\\path")
+
+def get_save_folder(archive):
+    return os.path.join(os.path.dirname(archive), 'save')
 
 
+def create_tar_command(archive, destination):
+    destination_drive, destination = split_destination_for_command(destination)
+    save_folder = get_save_folder(archive)
+    #en ce moment le save_folder c'est folder
+    #est-ce que ça devrait être ./folder ?
+    return ['tar', '-xvpz', '--listed-incremental=' + save_folder, '-f', archive, '-C', destination_drive, destination]
+
+
+###############################################################################
+if __name__ == "__main__":
+    os.chdir(ARCHIVE_FOLDER)
+    archive = get_most_recent_archive(ARCHIVE_FOLDER)
+    save_folder = os.path.join(ARCHIVE_FOLDER, "save")
+    archive_folder_no_drive = remove_drive_letter(ARCHIVE_FOLDER)
+    for i in range(get_archive_file_number(archive) + 1):
+        archive = get_archive_by_number(archive, i)
+        print(create_tar_command(archive, DESTINATION_FOLDER))
+        #subprocess.call()

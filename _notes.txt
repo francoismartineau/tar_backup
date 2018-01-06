@@ -12,12 +12,12 @@ Ces scripts permettent de créer des backups du système.
         Rouler ce script sans arguments pour récupérer le backup le plus
         récent du disque Z vers un dossier qui sera demandé à l'utilisateur.
 
-        Pour faire un recover vers le disque primaire, je crois qu'il est
-        nécessaire de connecter le disque primaire en question à la machine
-        utilisé pour récupérer les données, vider le disque et le remplir avec
-        notre recovery. 
-        J'ai aussi cru comprendre qu'il était possible de se faire un bootable
-        drive qui copierait son contenu sur le disque primaire. Ça reste à voir.
+        Pour récupérer les donnés sur le disque primaire d'un ordinateur,
+        voici ce que je pense qui serait la meilleure solution:
+            -les récupérer sur un disque externe
+            -le brancher sur l'ordinateur et booter sur le disque externe
+            -formater le disque primaire et ensuite cloner le disque externe vers le disque primaire 
+            -rebooter sur le disque primaire
 
     --Fichiers utilitaires---------------------------------------------------
             backup.py

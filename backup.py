@@ -1,16 +1,19 @@
-from util import path_remove_drive, change_drive, get_arguments, switch_path_slashes
-import subprocess, os, sys, shutil, optparse
+from util import remove_drive_letter, fix_backup_source_path, make_destination_folder, change_cwd_drive
+import subprocess, os, sys, shutil
 
-"""
-To perform a backup run this script with arguments as follows:
-    path for a folder to backup. This could be an entire drive (ex: C:)
-    path for a folder where to pu the resulting archive file. For example on an external drive.
-To run this script you need Python3 and Tar for Windows
 
-Options
-"""
 
 BACKUPNAME = "backup"
+SOURCE = "C:\\"
+DESTINATION = "Z:\\"
+EXCLUDES = ["$RECYCLE.BIN", "Program Files (x86)/Steam", "_util/tar_backup"]
+
+
+
+
+
+
+###############################################################################
 
 def get_save_file_path(archive_folder):
     save_folder = os.path.join(archive_folder, "save")
@@ -29,7 +32,6 @@ def get_save_file_path(archive_folder):
         save_file_path = os.path.join(save_folder, "save.list-" + str(num + 1)) 
         shutil.copyfile(old_save_file_path, save_file_path)
     return save_file_path
-    
 
 def get_archive_path(archive_folder):
     num = -1
@@ -43,21 +45,33 @@ def get_archive_path(archive_folder):
                 num = int(archive_number)
     return os.path.join(archive_folder, BACKUPNAME + str(num + 1) + ".tar.gz")
 
-def get_arguments():
-    parser = optparse.OptionParser()
-    parser.add_option("-s", "--source", action="store", dest="source", help="Path to the targeted directory to backup.")
-    parser.add_option("-d", "--dest", action="store", dest="dest", help="Path to the folder where to store the archive file.")
-    opts = parser.parse_args(sys.argv[1:])[0]
-    return opts.source, opts.dest
+def split_source_for_command(source):
+    if source[0].isalpha() and source[1] == ':' and source[2] == '\\':
+        source_drive = '/' + source[0]
+        source = './' + source[3:]
+        return source_drive, source
+    else:
+        print("Source path must respect the format C:\\path")
 
 
+def create_tar_command(archive, save_file, source):
+    source_drive, source = split_source_for_command(source)
+    command = ['tar', '-cvpzf',  archive , '--listed-incremental=' + save_file, '-C', source_drive, source]
+    for e in EXCLUDES:
+        command.append('--exclude=' + e)
+    return command
 
 
+###############################################################################
 if __name__ == "__main__":
-    source, dest = get_arguments()
-    source = switch_path_slashes(source) 
-    change_drive(dest)
-    archive = path_remove_drive(get_archive_path(dest))
-    save = path_remove_drive(get_save_file_path(dest))
-    subprocess.call(['tar','-cvpzf',  archive , '--listed-incremental=' + save, '-C', source, '.'])
+    try:
+        change_cwd_drive(DESTINATION)
+        make_destination_folder(DESTINATION)
+        archive = remove_drive_letter(get_archive_path(DESTINATION))
+        save_file = remove_drive_letter(get_save_file_path(DESTINATION))
+        subprocess.call(create_tar_command(archive, save_file, SOURCE))
+        input("Backup finished.")
+    except Exception as e:
+        input(e)
+
     
