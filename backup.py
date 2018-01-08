@@ -4,8 +4,8 @@ import subprocess, os, sys, shutil
 
 
 BACKUPNAME = "backup"
-SOURCE = "C:\\"
-DESTINATION = "Z:\\"
+SOURCE = "C:\\test"
+DESTINATION = "E:\\"
 EXCLUDES = ["$RECYCLE.BIN", "Program Files (x86)/Steam", "_util/tar_backup"]
 
 
@@ -69,7 +69,8 @@ if __name__ == "__main__":
         make_destination_folder(DESTINATION)
         archive = remove_drive_letter(get_archive_path(DESTINATION))
         save_file = remove_drive_letter(get_save_file_path(DESTINATION))
-        subprocess.call(create_tar_command(archive, save_file, SOURCE))
+        command = create_tar_command(archive, save_file, SOURCE)
+        subprocess.call(command)
         input("Backup finished.")
     except Exception as e:
         input(e)
