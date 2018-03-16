@@ -1,4 +1,4 @@
-from util import change_cwd_drive, make_destination_folder, remove_drive_letter
+from util import change_cwd_drive, make_destination_folder, remove_drive_letter, sleep_settings
 import subprocess, os, sys
 
 
@@ -66,13 +66,19 @@ def create_tar_command(archive, destination):
 
 ###############################################################################
 if __name__ == "__main__":
-    make_destination_folder(DESTINATION_FOLDER)
-    os.chdir(ARCHIVE_FOLDER)
-    archive = get_most_recent_archive(ARCHIVE_FOLDER)
-    save_folder = os.path.join(ARCHIVE_FOLDER, "save")
-    archive_folder_no_drive = remove_drive_letter(ARCHIVE_FOLDER)
-    for i in range(get_archive_file_number(archive) + 1):
-        archive = get_archive_by_number(archive, i)
-        command = create_tar_command(archive, DESTINATION_FOLDER)
-        subprocess.call(command)
-    input('Recover finished.')
+    try:
+        sleep_settings(False)
+        make_destination_folder(DESTINATION_FOLDER)
+        os.chdir(ARCHIVE_FOLDER)
+        archive = get_most_recent_archive(ARCHIVE_FOLDER)
+        save_folder = os.path.join(ARCHIVE_FOLDER, "save")
+        archive_folder_no_drive = remove_drive_letter(ARCHIVE_FOLDER)
+        for i in range(get_archive_file_number(archive) + 1):
+            archive = get_archive_by_number(archive, i)
+            command = create_tar_command(archive, DESTINATION_FOLDER)
+            subprocess.call(command)
+        sleep_settings(True)
+        input('Recover finished.')
+    except Exception as e:
+        sleep_settings(True)
+        input(e)

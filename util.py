@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, subprocess
 
 
 def fix_backup_source_path(source):
@@ -27,3 +27,11 @@ def get_arguments():
     arg1 = sys.argv[1:][0]
     arg2 = sys.argv[1:][1]
     return arg1, arg2
+
+def sleep_settings(sleep):
+    if sleep:
+        time = 20
+    else:
+        time = 0
+    subprocess.call(["powercfg", "/change", "standby-timeout-ac", str(time)])
+

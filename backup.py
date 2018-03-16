@@ -1,11 +1,11 @@
-from util import remove_drive_letter, fix_backup_source_path, make_destination_folder, change_cwd_drive
+from util import remove_drive_letter, fix_backup_source_path, make_destination_folder, change_cwd_drive, sleep_settings
 import subprocess, os, sys, shutil
 
 
 
 BACKUPNAME = "backup"
-SOURCE = "C:\\test"
-DESTINATION = "E:\\"
+SOURCE = "C:\\"
+DESTINATION = "Z:\\"
 EXCLUDES = ["$RECYCLE.BIN", "Program Files (x86)/Steam", "_util/tar_backup"]
 
 
@@ -65,14 +65,18 @@ def create_tar_command(archive, save_file, source):
 ###############################################################################
 if __name__ == "__main__":
     try:
+        sleep_settings(False)
         change_cwd_drive(DESTINATION)
         make_destination_folder(DESTINATION)
         archive = remove_drive_letter(get_archive_path(DESTINATION))
         save_file = remove_drive_letter(get_save_file_path(DESTINATION))
         command = create_tar_command(archive, save_file, SOURCE)
         subprocess.call(command)
+        sleep_settings(True)
         input("Backup finished.")
     except Exception as e:
         input(e)
+        sleep_settings(True)
+
 
     
